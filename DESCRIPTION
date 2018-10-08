@@ -1,0 +1,20 @@
+Package: checkshoenames
+Type: Package
+Title: Check Shoeprints Names
+Version: 0.1.0
+Author: Guillermo Basulto-Elias
+Maintainer: Guillermo Basulto-Elias <basulto@iastate.edu>
+Description: Verify that names in shoe print database follow the standard.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
+Imports: stringr,
+    magrittr,
+    tcltk,
+    dplyr,
+    knitr
+Suggests:
+    rmarkdown,
+    devtools
+VignetteBuilder: knitr

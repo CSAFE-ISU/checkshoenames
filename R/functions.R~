@@ -1,0 +1,149 @@
+
+
+## -------------------------------------------------------------------
+
+##' Check File Names
+##'
+##' Check that every file in a direrctory matched the naming criterion
+##' for a particular shoeprint method.
+##' @param method Integer specifying the method.
+##' @param mode NULL by default. It specifies the mode to
+##'     check. Mandatory for method 1, optional for the rest.
+##' @return NULL
+##' @importFrom magrittr %>%
+##' @author Guillermo Basulto Elias
+##' @export
+check_files <- function(method, mode = NULL) {
+    ## Save current directory
+    current_dir <- getwd()
+
+    ## Choose directory to read files from
+    chosen_dir <- tcltk::tclvalue(tcltk::tkchooseDirectory())
+
+    ## Set temporary directory
+    setwd(chosen_dir)
+
+    ## Print list of files and remove NAs.
+    files <- list.files()
+
+    ## Extract extension of files
+    extension <- get_file_extension(files)
+
+    ## Print table
+    cat("\nFile count:")
+    dplyr::data_frame(extension) %>%
+        dplyr::group_by(extension) %>%
+            dplyr::summarize(count = dplyr::n()) %>%
+            dplyr::filter(!is.na(extension)) %>%
+            knitr::kable() %>%
+            print()
+    cat("\n\n")
+
+    ## Set the directory to the way it was.
+    setwd(current_dir)
+}
+
+
+##' Extract File Extension
+##'
+##' Get the everything after the last dot in a filename
+##' @param filename File name
+##' @return character
+##' @author Guillermo Basulto-Elias
+get_file_extension <- function(filename) {
+    filename %>%
+        str_extract("\\.[:alpha:]+[:punct:]?$") %>%
+        str_replace(".", "")
+}
+
+get_method_extension <- function(method, mode){
+
+    ## Check mode is not null for case 1 (matscan)
+    if (method == 1 & !(mode %in% 1:10)) {
+        stop("Mode is required for method 1")
+    }
+
+    ## Obtain method
+    out <-
+        dplyr::case_when(
+                   method == 1 & mode %in% c(1, 6) ~ "avi",
+                   method == 1 & mode %in% c(2, 7) ~ "csv",
+                   method == 1 & mode %in% c(3, 8) ~ "csv",
+                   method == 1 & mode %in% c(4, 9) ~ "jpg",
+                   method == 1 & mode %in% c(5, 10) ~ "fsx",
+                   TRUE ~ "na"
+               )
+
+    ## Check is method is valid.
+    if (out == "na") stop("Invalid method")
+
+    out
+}
+
+
+##' Extract ID
+##'
+##' .. content for \details{} ..
+##' @title
+##' @param x
+##' @return
+##' @author
+extract_id <- function(x) {
+    id <- x %>% str_extract("^[0-9]{3}")
+
+    if (is.na(id)) {
+        cat("The file ", x, " does not have a valid ID.\n\n")
+        is_correct <- FALSE
+    }
+}
+
+
+
+
+
+##' Check Shoeprint Name
+##'
+##' Check if the name of a particular file is correct.
+##' @param filename Filename
+##' @param checksum_table Table with checksums for ID and side.
+##' @return Logical value indicating if name is correct
+##' @author Guillermo Basulto-Elias
+##' @import stringr
+##' @importFrom magrittr %>%
+##' @export
+check_individual_name <- function (filename, checksum_table) {
+    ## Default output value
+    is_correct <- TRUE
+
+    ## Extract characteristics
+    id <- filename %>% str_extract("^[0-9]{3}")
+    side <- filename %>%
+        str_extract("^[0-9]{6}[LR]") %>%
+        str_extract("[LR]")
+
+
+
+
+    if (is.na(id)) {
+        cat("The file ", filename, " does not have a valid ID.\n\n")
+        is_correct <- FALSE
+    }
+
+    is_correct
+}
+
+
+## c(TRUE, FALSE)[c(1, 1, 2, 1, 1, 2)]
+
+## c("id", "side", "id-checksum-side", "method", "mode", "repetition")[c(TRUE, FALSE)[c(1, 1, 2, 1, 1, 2)]]
+
+
+## xx <- 2
+
+## ff <- function(x)
+## {
+##     print(x)
+##     deparse(substitute(x))
+## }
+
+## ff(xx)
