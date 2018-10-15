@@ -2,5 +2,6 @@
 
 export(check_files)
 export(check_individual_name)
+export(str_replace_in_dir)
 import(stringr)
 importFrom(magrittr,"%>%")

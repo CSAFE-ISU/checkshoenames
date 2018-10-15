@@ -45,6 +45,7 @@ sss %>%
             checksum_error = !(checksum %in% all_id_checksum_side)) %>%
   as.data.frame()
 
+str_replace_in_dir("y+ou", "you")
 
 
 ```

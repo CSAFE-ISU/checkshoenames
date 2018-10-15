@@ -13,7 +13,9 @@ Imports: stringr,
     magrittr,
     tcltk,
     dplyr,
-    knitr
+    knitr,
+    purrr,
+    lubridate
 Suggests:
     rmarkdown,
     devtools
