@@ -7,7 +7,7 @@
 print_files_table(file_ext)
 }
 \arguments{
-\item{file_ext}{Vector of characters with all the extensions founf
+\item{file_ext}{Vector of characters with all the extensions found
 in a directory.}
 }
 \description{

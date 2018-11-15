@@ -3,7 +3,7 @@
 
 ##' Print tally of files
 ##'
-##' @param file_ext Vector of characters with all the extensions founf
+##' @param file_ext Vector of characters with all the extensions found
 ##'     in a directory.
 print_files_table <- function (file_ext) {
     cat("\nFile count:")
@@ -39,11 +39,22 @@ get_method_extension <- function(method, mode){
     ## Obtain method
     out <-
         dplyr::case_when(
-                   method == 1 & mode %in% c(1, 6) ~ "avi",
+                   method == 1 & mode %in% c(1, 6) ~ "csv",
                    method == 1 & mode %in% c(2, 7) ~ "csv",
-                   method == 1 & mode %in% c(3, 8) ~ "csv",
-                   method == 1 & mode %in% c(4, 9) ~ "jpg",
+                   method == 1 & mode %in% c(3, 8) ~ "jpg",
+                   method == 1 & mode %in% c(4, 9) ~ "avi",
                    method == 1 & mode %in% c(5, 10) ~ "fsx",
+                   method == 2 ~ "TIFF",
+                   method == 3 ~ "stl",
+                   method == 4 ~ "TIF",
+                   method == 5 ~ "TIF",
+                   method == 6 ~ "TIF",
+                   method == 7 ~ "JPG",
+                   method == 8 ~ "TIF",
+                   method == 9 ~ "TIF",
+                   method == 10 ~ "stl",
+                   method == 11 ~ "TIF",
+                   method == 12 ~ "TIF",
                    TRUE ~ "na"
                )
 
@@ -65,9 +76,14 @@ get_method_extension <- function(method, mode){
 ##'     check. Mandatory for method 1, optional for the rest.
 ##' @return NULL
 ##' @importFrom magrittr %>%
+##' @importFrom dplyr data_frame mutate select
 ##' @author Guillermo Basulto Elias
 ##' @export
 check_files <- function(method, mode = NULL) {
+
+    ## Set a convenitent value for mode when it's null.
+    if(is.null(mode)) mode <- 0
+
     ## Save current directory
     current_dir <- getwd()
 
@@ -89,28 +105,41 @@ check_files <- function(method, mode = NULL) {
     ## Get extension based on method and mode
     mode_ext <- get_method_extension(method, mode)
 
-    out <-
-      data_frame(filename = files) %>%
-      mutate(
-        id = filename %>% str_extract("^[0-9]{3}"),
-        checksum = filename %>%
-          str_extract("^[0-9]{6}[LR]"),
-        side = checksum %>%
-          str_extract("[LR]"),
-        date = ymd(str_extract(filename, "[0-9]{8}")),
-        aux = str_extract(filename, "_[1-9]_[:digit:]{1,2}_[:digit:]{1,2}"),
-        aux = str_remove(aux, "^_"),
-        method = str_extract(aux, "^[1-9]"),
-        mode = str_extract(aux, "_[:digit:]{1,2}_"),
-        mode = str_remove_all(mode, "_"),
-        rep = str_extract(aux, "[:digit:]{1,2}$"),
-        ext = filename %>%
-          str_extract("\\.[:alpha:]+[:punct:]?$") %>%
-          str_replace(".", ""),
-        checksum_error = !(checksum %in% all_id_checksum_side)) %>%
-      select(-aux, -checksum) %>%
-      filter(ext %in% mode_ext)
+    cat("Extension:", mode_ext, "\n")
 
+    out <-
+        data_frame(filename = files) %>%
+        mutate(
+            id = filename %>% str_extract("^[0-9]{3}"),
+            checksum = filename %>%
+                str_extract("^[0-9]{6}[LR]"),
+            side = checksum %>%
+                str_extract("[LR]"),
+            date = ymd(str_extract(filename, "[0-9]{8}")),
+            aux = str_extract(filename,
+                              "_[1-9]_[:digit:]{1,2}_[:digit:]{1,2}"),
+            aux = str_remove(aux, "^_"),
+            method = str_extract(aux, "^[1-9]"),
+            mode = str_extract(aux, "_[:digit:]{1,2}_"),
+            mode = str_remove_all(mode, "_"),
+            rep = str_extract(aux, "[:digit:]{1,2}$"),
+            ext = filename %>%
+                str_extract("\\.[:alpha:]+[:punct:]?$") %>%
+                str_replace(".", ""),
+            checksum_error =
+                !(checksum %in% all_id_checksum_side),
+            date_error =  is.na(date)) %>%
+        dplyr::filter(checksum_error | date_error) %>%
+        dplyr::select(-aux, -checksum) %>%
+        dplyr::filter(ext %in% mode_ext) %>%
+        as.data.frame()
+
+
+    ## Display message with the number of errors.
+    cat("There are", nrow(out), "errors!\n\n")
+
+    ## Return NULL if there are no errors.
+    ## if(nrow(out) == 0) return (NULL)
 
     ## Set the directory to the way it was.
     setwd(current_dir)

@@ -35,17 +35,10 @@ library(checkshoenames)
 "/home/guillermo/Dropbox/postdoc/CSAFE/shoeprints-data-collection/sample_matscan_whole"
 
 
-sss <- check_files(1, 8)
 
+check_files(1, 1)
 
-as.data.frame(sss)
-
-sss %>%
-  transmute(filename, 
-            checksum_error = !(checksum %in% all_id_checksum_side)) %>%
-  as.data.frame()
-
-str_replace_in_dir("y+ou", "you")
+## str_replace_in_dir("y+ou", "you")
 
 
 ```
